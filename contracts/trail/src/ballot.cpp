@@ -6,6 +6,9 @@ using namespace trailservice;
 
 ACTION trail::newballot(name ballot_name, name category, name publisher,  
     symbol treasury_symbol, name voting_method, vector<name> initial_options) {
+
+    //TEMPORARY DURING MIGRATION
+    require_auth(get_self());
    
     //authenticate
     require_auth(publisher);
@@ -456,5 +459,93 @@ ACTION trail::unarchive(name ballot_name, bool force) {
 
     //erase archival
     archivals.erase(arch);
+
+}
+
+//======================== ballot migration ========================
+
+ACTION trail::migratebal(name bal_name) {
+
+    //authenticate
+    require_auth(get_self());
+
+    //open ballots table, get ballot
+    ballots_table ballots(get_self(), get_self().value);
+    auto& bal = ballots.get(bal_name.value, "ballot not found");
+
+    //open ballots2 table
+    ballots2_table ballots2(get_self(), get_self().value);
+    auto bal2 = ballots2.find(bal_name.value);
+
+    //validate
+    check(bal2 == ballots2.end(), "ballot2 already exists");
+
+    //emplace ballot2, RAM paid by contract
+    ballots2.emplace(get_self(), [&](auto& col) {
+        col.ballot_name = bal.ballot_name;
+        col.category = bal.category;
+        col.publisher = bal.publisher;
+        col.status = bal.status;
+        col.title = bal.title;
+        col.description = bal.description;
+        col.content = bal.content;
+        col.treasury_symbol = bal.treasury_symbol;
+        col.voting_method = bal.voting_method;
+        col.min_options = bal.min_options;
+        col.max_options = bal.max_options;
+        col.options = bal.options;
+        col.total_voters = bal.total_voters;
+        col.total_delegates = bal.total_delegates;
+        col.total_raw_weight = bal.total_raw_weight;
+        col.cleaned_count = bal.cleaned_count;
+        col.settings = bal.settings;
+        col.begin_time = bal.begin_time;
+        col.end_time = bal.end_time;
+    });
+
+    ballots.erase(bal);
+
+}
+
+ACTION trail::migrateback(name bal_name) {
+
+    //authenticate
+    require_auth(get_self());
+
+    //open ballots2 table
+    ballots2_table ballots2(get_self(), get_self().value);
+    auto& bal2 = ballots2.get(bal_name.value, "ballot not found");
+
+    //open ballots table, get ballot
+    ballots_table ballots(get_self(), get_self().value);
+    auto bal = ballots.find(bal_name.value);
+
+    //validate
+    check(bal == ballots.end(), "ballot already exists");
+
+    //re-emplace ballot, RAM paid by contract
+    ballots.emplace(get_self(), [&](auto& col) {
+        col.ballot_name = bal2.ballot_name;
+        col.category = bal2.category;
+        col.publisher = bal2.publisher;
+        col.status = bal2.status;
+        col.title = bal2.title;
+        col.description = bal2.description;
+        col.content = bal2.content;
+        col.treasury_symbol = bal2.treasury_symbol;
+        col.voting_method = bal2.voting_method;
+        col.min_options = bal2.min_options;
+        col.max_options = bal2.max_options;
+        col.options = bal2.options;
+        col.total_voters = bal2.total_voters;
+        col.total_delegates = bal2.total_delegates;
+        col.total_raw_weight = bal2.total_raw_weight;
+        col.cleaned_count = bal2.cleaned_count;
+        col.settings = bal2.settings;
+        col.begin_time = bal2.begin_time;
+        col.end_time = bal2.end_time;
+    });
+
+    ballots2.erase(bal2);
 
 }

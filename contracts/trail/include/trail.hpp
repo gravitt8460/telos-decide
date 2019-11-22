@@ -551,5 +551,49 @@ namespace trailservice {
         };
         typedef multi_index<name("accounts"), account> accounts_table;
 
+
+
+        //======================== ballot migration ========================
+
+        TABLE ballot2 {
+            name ballot_name;
+            name category;
+            name publisher;
+            name status;
+
+            string title;
+            string description;
+            string content;
+
+            symbol treasury_symbol;
+            name voting_method;
+            uint8_t min_options;
+            uint8_t max_options;
+            map<name, asset> options;
+
+            uint32_t total_voters;
+            uint32_t total_delegates;
+            asset total_raw_weight;
+            uint32_t cleaned_count;
+            map<name, bool> settings;
+            
+            time_point_sec begin_time;
+            time_point_sec end_time;
+
+            uint64_t primary_key() const { return ballot_name.value; }
+            
+            EOSLIB_SERIALIZE(ballot2, 
+                (ballot_name)(category)(publisher)(status)
+                (title)(description)(content)
+                (treasury_symbol)(voting_method)(min_options)(max_options)(options)
+                (total_voters)(total_delegates)(total_raw_weight)(cleaned_count)(settings)
+                (begin_time)(end_time))
+        };
+        typedef multi_index<name("ballots2"), ballot2> ballots2_table;
+
+        ACTION migratebal(name bal_name);
+
+        ACTION migrateback(name bal_name);
+
     };
 }
