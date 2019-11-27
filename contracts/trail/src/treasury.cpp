@@ -390,3 +390,88 @@ ACTION trail::editpayrate(symbol treasury_symbol, uint32_t period_length, asset 
     });
 
 }
+
+
+
+//======================== migration actions ========================
+
+ACTION trail::movetrs(symbol trs_sym) {
+
+    //authenticate
+    require_auth(get_self());
+
+    //open treasuries table, get treasury
+    treasuries_table treasuries(get_self(), get_self().value);
+    auto& trs = treasuries.get(trs_sym.code().raw(), "treasury not found");
+
+    //open treasuries2 table, get treasury
+    treasuries2_table treasuries2(get_self(), get_self().value);
+    auto trs2 = treasuries2.find(trs_sym.code().raw());
+
+    //validate
+    check(trs2 == treasuries2.end(), "treasury2 already exists");
+
+    //emplace new trs2
+    treasuries2.emplace(get_self(), [&](auto& col) {
+        col.supply = trs.supply;
+        col.max_supply = trs.max_supply;
+        col.access = trs.access;
+        col.manager = trs.manager;
+        col.title = trs.title;
+        col.description = trs.description;
+        col.icon = trs.icon;
+        col.voters = trs.voters;
+        col.delegates = trs.delegates;
+        col.committees = trs.committees;
+        col.open_ballots = trs.open_ballots;
+        col.locked = trs.locked;
+        col.unlock_acct = trs.unlock_acct;
+        col.unlock_auth = trs.unlock_auth;
+        col.settings = trs.settings;
+    });
+
+    //erase old row
+    treasuries.erase(trs);
+
+}
+
+ACTION trail::movetrsback(symbol trs_sym) {
+
+    //authenticate
+    require_auth(get_self());
+
+    //open treasuries2 table, get treasury2
+    treasuries2_table treasuries2(get_self(), get_self().value);
+    auto& trs2 = treasuries2.get(trs_sym.code().raw(), "treasury2 not found");
+
+    //open treasuries table, find treasury
+    treasuries_table treasuries(get_self(), get_self().value);
+    auto trs = treasuries.find(trs_sym.code().raw());
+
+    //validate
+    check(trs == treasuries.end(), "treasury already exists");
+
+    //emplace new trs
+    treasuries.emplace(get_self(), [&](auto& col) {
+        col.treasury_symbol = trs2.supply.symbol;
+        col.supply = trs2.supply;
+        col.max_supply = trs2.max_supply;
+        col.access = trs2.access;
+        col.manager = trs.manager;
+        col.title = trs2.title;
+        col.description = trs2.description;
+        col.icon = trs2.icon;
+        col.voters = trs2.voters;
+        col.delegates = trs2.delegates;
+        col.committees = trs2.committees;
+        col.open_ballots = trs2.open_ballots;
+        col.locked = trs2.locked;
+        col.unlock_acct = trs2.unlock_acct;
+        col.unlock_auth = trs2.unlock_auth;
+        col.settings = trs2.settings;
+    });
+
+    //erase old row
+    treasuries.erase(trs);
+
+}

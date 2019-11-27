@@ -552,4 +552,79 @@ namespace trailservice {
         typedef multi_index<name("accounts"), account> accounts_table;
 
     };
+
+    //======================== migration ========================
+
+    //move treasury to treasury2 table
+    ACTION movetrs(symbol trs_sym);
+
+    //move treasury into new treasury table
+    ACTION movetrsback(symbol trs_sym);
+
+    //TEMP TABLE
+    //scope: get_self().value
+    //ram: 
+    TABLE treasury2 {
+        asset supply; //current supply
+        asset max_supply; //maximum supply
+        name access; //public, private, invite, membership
+        name manager; //treasury manager
+
+        string title;
+        string description;
+        string icon;
+
+        uint32_t voters;
+        uint32_t delegates;
+        uint32_t committees;
+        uint32_t open_ballots;
+
+        bool locked; //locks all settings
+        name unlock_acct; //account name to unlock
+        name unlock_auth; //authorization name to unlock
+        map<name, bool> settings; //setting_name -> on/off
+
+        uint64_t primary_key() const { return supply.symbol.code().raw(); }
+        EOSLIB_SERIALIZE(treasury2, 
+            (supply)(max_supply)(access)(manager)
+            (title)(description)(icon)
+            (voters)(delegates)(committees)(open_ballots)
+            (locked)(unlock_acct)(unlock_auth)(settings))
+    };
+    typedef multi_index<name("treasuries2"), treasury2> treasuries2_table;
+
+    //NEW TABLE
+    //scope: get_self().value
+    //ram: 
+    // TABLE treasury {
+    //     symbol treasury_symbol; //e.g. 4,VOTE
+    //     asset supply; //current supply
+    //     asset max_supply; //maximum supply
+    //     name access; //public, private, invite, membership
+    //     name manager; //treasury manager
+
+    //     string title;
+    //     string description;
+    //     string icon;
+
+    //     uint32_t voters;
+    //     uint32_t delegates;
+    //     uint32_t committees;
+    //     uint32_t open_ballots;
+
+    //     bool locked; //locks all settings
+    //     name unlock_acct; //account name to unlock
+    //     name unlock_auth; //authorization name to unlock
+    //     map<name, bool> settings; //setting_name -> on/off
+
+    //     uint64_t primary_key() const { return treasury_symbol.code().raw(); }
+
+    //     EOSLIB_SERIALIZE(treasury, 
+    //         (treasury_symbol)(supply)(max_supply)(access)(manager)
+    //         (title)(description)(icon)
+    //         (voters)(delegates)(committees)(open_ballots)
+    //         (locked)(unlock_acct)(unlock_auth)(settings))
+    // };
+    // typedef multi_index<name("treasuries"), treasury> treasuries_table;
+
 }
