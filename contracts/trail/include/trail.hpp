@@ -59,7 +59,7 @@ namespace trailservice {
 
         //ballot statuses: setup, voting, closed, cancelled, archived
 
-        //ballot settings: lightballot, revotable, votestake, writein
+        //ballot settings: lightballot, revotable, voteliquid, votestake, writein
 
         //voting methods: 1acct1vote, 1tokennvote, 1token1vote, 1tsquare1v, quadratic
 

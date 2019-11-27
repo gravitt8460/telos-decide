@@ -38,4 +38,7 @@ Ballots have a range of settings that further alter their behavior.
 | --- | --- | --- |
 | lightballot | Marks as a light ballot. | false |
 | revotable | Allows revoting on the ballot. | true |
-| votestake | Reads voter's staked balance for casting votes. | true |
+| voteliquid | Reads voter's liquid balance when casting votes. | true |
+| votestake | Reads voter's staked balance when casting votes. | true |
+
+Note: Ballots that have both `voteliquid` and `votestake` set to true will add the voter's liquid and staked balances together to calculate vote weight.

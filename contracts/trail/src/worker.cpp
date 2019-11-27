@@ -186,10 +186,14 @@ ACTION trail::rebalance(name voter, name ballot_name, optional<name> worker) {
     //validate
     check(now < bal.end_time, "vote has already expired");
 
-    if (bal.settings.at(name("votestake"))) { //use stake
-        raw_vote_weight = vtr.staked;
-    } else { //use liquid
+    if (bal.settings.at(name("voteliquid")) && bal.settings.at(name("votestake"))) { //use liquid + stake
+        raw_vote_weight = (vtr.liquid + vtr.staked);
+    } else if (bal.settings.at(name("voteliquid"))) { //use liquid
         raw_vote_weight = vtr.liquid;
+    } else if (bal.settings.at(name("votestake"))) { //use stake
+        raw_vote_weight = vtr.staked;
+    } else { //error
+        check(false, "improper ballot configuration. notify ballot pulisher.");
     }
 
     check(raw_vote_weight != v.raw_votes, "vote is already balanced");

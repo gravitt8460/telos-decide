@@ -141,10 +141,14 @@ ACTION trail::castvote(name voter, name ballot_name, vector<name> options) {
     uint32_t new_voter = 1;
     map<name, asset> temp_bal_options = bal.options;
 
-    if (bal.settings.at(name("votestake"))) { //use stake
-        raw_vote_weight = vtr.staked;
-    } else { //use liquid
+    if (bal.settings.at(name("voteliquid")) && bal.settings.at(name("votestake"))) { //use liquid + stake
+        raw_vote_weight = (vtr.liquid + vtr.staked);
+    } else if (bal.settings.at(name("voteliquid"))) { //use liquid
         raw_vote_weight = vtr.liquid;
+    } else if (bal.settings.at(name("votestake"))) { //use stake
+        raw_vote_weight = vtr.staked;
+    } else { //error
+        check(false, "improper ballot configuration. notify ballot pulisher.");
     }
 
     asset raw_delta = raw_vote_weight;

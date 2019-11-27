@@ -47,6 +47,7 @@ ACTION trail::newballot(name ballot_name, name category, name publisher,
     //intitial settings
     new_settings[name("lightballot")] = false;
     new_settings[name("revotable")] = true;
+    new_settings[name("voteliquid")] = true;
     new_settings[name("votestake")] = true;
     new_settings[name("writein")] = false;
     //TODO: new_settings[name("allowdgate")] = true;
