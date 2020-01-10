@@ -74,6 +74,9 @@ namespace trailservice {
         //updates time length
         ACTION updatetime(name time_name, uint32_t length);
 
+        ACTION killtreas (const symbol& treasury);
+        ACTION killvoter (const name& voter, const symbol& treasury);
+
         //======================== treasury actions ========================
 
         //create a new treasury
