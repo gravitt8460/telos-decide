@@ -9,20 +9,6 @@ trail::trail(name self, name code, datastream<const char*> ds) : contract(self, 
 
 trail::~trail() {}
 
-ACTION trail::killtreas (const symbol& treasury) {
-    require_auth (get_self());
-    treasuries_table t_t (get_self(), get_self().value);
-    auto t_itr = t_t.find (treasury.code().raw());
-    t_t.erase (t_itr);
-}
-
-ACTION trail::killvoter (const name& voter, const symbol& treasury)  {
-    require_auth (get_self());
-    votes_table v_t (get_self(), voter.value);
-    auto v_itr = v_t.find (treasury.code().raw());
-    v_t.erase (v_itr);
-}
-
 //======================== admin actions ========================
 
 ACTION trail::setconfig(string trail_version, bool set_defaults) {
